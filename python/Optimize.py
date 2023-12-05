@@ -1,23 +1,13 @@
 import numpy as np
 from scipy.optimize import least_squares
-import autograd.numpy as np
-from autograd import grad, jacobian
+from sympy import sin, cos, Matrix
+from sympy.abc import rho, phi
 
 
-def jacobian_autograd(x0):
-
-    def cost(x):
-        return x[0]**2 / x[1] - np.log(x[1])
-
-    # gradient_cost = grad(cost)
-    jacobian_cost = jacobian(cost)
-
-    # gradient_cost(x)
-    J_m=jacobian_cost(x0)
-    return J_m
-
-def Least_Squares(fun, x0, jac):
-    res1=least_squares()
+def least_squares(error, x0, jac):
+    ##Method levenberg-marquardt
+    res1=least_squares(error, p1.ravel(), args=(p, kp1, kp2), method='lm')
+    return res1
 
 def jac(x0):
     input=x0
@@ -32,49 +22,29 @@ def jac(x0):
 
 
 # def lm_update(J,r,lambda_w)
-# r, lambda_weight) :
+# # r, lambda_weight) :
 
-# """Levenberg Marquardt Update
-# :param J: Jacobin Matrix J(x) of residual error function r(x),
-# : param r: residual error function, dim: (N, n r_out)
-# :param labmda_weight: the damping vector, dim: (N, n_r_in)
-# : return delta x: update vector, dim: (N, n r_in)
-# dim:
-# (N,
-# n r out,
-# n r_in): return delta x norm: norm of
-# N = J . shape[Ø] # batch size
-# the update vector, dim: (N, 1)"""
+# # """Levenberg Marquardt Update
+# # :param J: Jacobin Matrix J(x) of residual error function r(x),
+# # : param r: residual error function, dim: (N, n r_out)
+# # :param labmda_weight: the damping vector, dim: (N, n_r_in)
+# # : return delta x: update vector, dim: (N, n r_in)
+# # dim:
+# # (N,
+# # n r out,
+# # n r_in): return delta x norm: norm of
+# # N = J . shape[Ø] # batch size
+# # the update vector, dim: (N, 1)"""
 
-    # N= J.shape[2] #bar
-    # n f in
-    # n_f_out = J. shape[l]
-    # # Compute Update Vector :
-    # - + \lambda
-    # H),
-    # dim:
-    # JtJ
-    # JtR
-    # J . transpose(l, 2)
-    # torch. bmm(Jt, J)
-    # torch. bmm(Jt, r. view(N,
-    # (N,
-    # n f in,
-    # n f out,
-    # 1))
-    # batched_mat_diag(lambda_weight *
-    # - torch. bmm(batched ,
-    # delta x =
-    # # batch transpose (H, W) to (W,
-    # # dim: (N, n_f_in)
-    # # dim: (N, 1)
-    # JtR) . view(N, n_f_in)
-    # dim=l)) . detach()
-    # # dim.
-    # # dim.
-    # # dim.
-    # delta_x_norm=
-    # return delta_x, delta_x_norm
+#     N= J.shape[2] #batch update
+#     n_f_in=J.shape[2]
+#     n_f_out=J.shape[1]
+
+#     Jt=J.transpose(1,2)
+#     JtJ=torch.bmm(Jt,J)
+#     JtR=torch.bmm(Jt,r.view(N,n_f_out,1))
+   
+#     return delta_x, delta_x_norm
 
 
 
