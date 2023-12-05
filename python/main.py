@@ -1,7 +1,37 @@
+import cv2
+import matplotlib.pyplot as plt
+import os
+import numpy as np
+import open3d as o3d
+from FeatureMatching import ImageMatch
+from load_llff import load_llff_data
+from Optimize import jac
+from Optimize import jacobian_autograd
+# from briefRotTest import briefRotTest
+# from computeH import computeH
+
+datadir='principles/project4/data/'
+# ##Temple Ring
+# # Load the images
+def load_images_from_folder(folder):
+    images = []
+    for filename in os.listdir(folder):
+        if filename.endswith('.png'):
+            img = cv2.imread(os.path.join(folder,filename))
+                # Turn into grayscale
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) 
+            if img is not None:
+                images.append(img)
+    return images
+
+K = np.genfromtxt(datadir + 'templeRing/camera.txt', dtype=str).astype(np.float64)
+
+
+images=load_images_from_folder(datadir +'templeRing/')
 
 
 
-1. Using Superglue to support better feature matching
+
 # Match the features
 kp1,kp2,matches = ImageMatch(images[0], images[1])
 print(len(matches))
@@ -49,12 +79,17 @@ example_point, jacobian = cv2.projectPoints(
     K,
     dist_coeffs,
 )
-# print(example_point)
+jacobian_my=jac(mat_3D)
+jacobian_my_2=jacobian_autograd(mat_3D)
+
+print(jacobian_my)
+print(jacobian_my_2)
+
 
 print("Load a ply point cloud, print it, and render it")
 pcd = o3d.geometry.PointCloud()
 pcd.points = o3d.utility.Vector3dVector(mat_3D)
-print(pcd)
+# print(pcd)
 # print(np.asarray(pcd.points))
 # o3d.visualization.draw_geometries([pcd],
 #                                   zoom=0.3412,
