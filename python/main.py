@@ -27,8 +27,10 @@ def run_main_loop(path):
     if 'templeRing' in path:
         images, K=load_templering(path)
     else:
-        imgages=load_llff(path)
+        images,poses, K=load_llff(path)
 
+    # print(K)
+    # print(len(images))
     i=1
     #loading functions
     triangulation=cv2.triangulatePoints
@@ -36,38 +38,42 @@ def run_main_loop(path):
     # PnP=cv2.solvePnP
     pcd = o3d.geometry.PointCloud()
     # Initialize
-    kp1,kp2,matches,method, n_inliners= ImageMatch(images[0], images[1])
-            # print(len(matches))
-            # [F,mask]=cv2.findFundamentalMat(kp1,kp2, method=3,ransacReprojThreshold=3.0,confidence=0.99)
-    [E1,mask]=cv2.findEssentialMat(kp1,kp2,cameraMatrix=K, method=cv2.RANSAC, prob=0.999, threshold=3.0 )
-    [E2,mask]=cv2.findEssentialMat(kp2,kp1,cameraMatrix=K, method=cv2.RANSAC, prob=0.999, threshold=3.0 )
-            #     # R Recovered relative rotation, 3x3 matrix.
-            #     # t Recovered relative translation, 3x1 vector.
-            #     # good the number of inliers which pass the cheirality check.
-            #     # mask Output mask for inliers in points1 and points2. In the output mask only inliers which pass the cheirality check. Vector of length N, see the Mask input option.
-            #     # triangulatedPoints 3D points which were reconstructed by triangulation, see cv.triangulatePoints
-
-
-    [_, R1, t1, mask] = cv2.recoverPose(E1, kp1,kp2, cameraMatrix=K,mask=mask)    
-    [_, R2, t2, mask] = cv2.recoverPose(E2, kp2,kp1, cameraMatrix=K,mask=mask)  
-    r1,jacobian=cv2.Rodrigues(R1)
-    projMatr1=np.column_stack((R1,t1))
-    # projMatr2=np.column_stack((R2,t2))
-    projMatr1=np.dot(K,projMatr1)
-    proj_matr_list.append(projMatr1)
-    # projMatr02=np.dot(K,projMatr2)
-
-
-
-    # mat_4D=triangulation(projMatr1=projMatr01,projMatr2=projMatr02,projPoints1=kp1,projPoints2=kp2).astype(np.float64)
-    # mat_3D = mat_4D[:3,:]
-    # pcd.points = o3d.utility.Vector3dVector(mat_3D.T)
-    # mat_dict[n_inliners]=pcd
-
-    new_mat=[]
-    projMatr1=None
+    print(len(images))
+    kp1,kp2,matches,method, n_inliners= ImageMatch(images[1], images[2])
+    if kp1.shape[0]>=3:
     
-    while  i<len(images):
+            # [F,mask]=cv2.findFundamentalMat(kp1,kp2, method=3,ransacReprojThreshold=3.0,confidence=0.99)
+        [E1,mask]=cv2.findEssentialMat(kp1,kp2,cameraMatrix=K, method=cv2.RANSAC, prob=0.999, threshold=3.0 )
+        [E2,mask]=cv2.findEssentialMat(kp2,kp1,cameraMatrix=K, method=cv2.RANSAC, prob=0.999, threshold=3.0 )
+                #     # R Recovered relative rotation, 3x3 matrix.
+                #     # t Recovered relative translation, 3x1 vector.
+                #     # good the number of inliers which pass the cheirality check.
+                #     # mask Output mask for inliers in points1 and points2. In the output mask only inliers which pass the cheirality check. Vector of length N, see the Mask input option.
+                #     # triangulatedPoints 3D points which were reconstructed by triangulation, see cv.triangulatePoints
+
+
+        [_, R1, t1, mask] = cv2.recoverPose(E1, kp1,kp2, cameraMatrix=K,mask=mask)    
+        [_, R2, t2, mask] = cv2.recoverPose(E2, kp2,kp1, cameraMatrix=K,mask=mask)  
+        r1,jacobian=cv2.Rodrigues(R1)
+        projMatr1=np.column_stack((R1,t1))
+        # projMatr2=np.column_stack((R2,t2))
+        projMatr1=np.dot(K,projMatr1)
+        proj_matr_list.append(projMatr1)
+        # projMatr02=np.dot(K,projMatr2)
+
+
+
+        # mat_4D=triangulation(projMatr1=projMatr01,projMatr2=projMatr02,projPoints1=kp1,projPoints2=kp2).astype(np.float64)
+        # mat_3D = mat_4D[:3,:]
+        # pcd.points = o3d.utility.Vector3dVector(mat_3D.T)
+        # mat_dict[n_inliners]=pcd
+
+        new_mat=[]
+        projMatr1=None
+    else:
+        pass
+    
+    while  i<len(images[:4]):
 
         for z in range(0,len(images)-1):    
             k1,k2,matches,method, n_inliners= ImageMatch(images[i],images[z])
@@ -162,37 +168,19 @@ def run_main_loop(path):
     o3d.visualization.draw_geometries(new_mat)
     vis = o3d.visualization.Visualizer()
     vis.create_window()
-    vis.add_geometry(pcd)
+    vis.add_geometry(new_mat)
     vis.update_geometry()
     vis.poll_events()
     vis.update_renderer()
-    vis.capture_screen_image('principles/project4/results')
+    vis.capture_screen_image('principles/project4/results/')
     vis.destroy_window()
 
         
 
 
-
-
-
-            
-
-       
-
-
-
-
-    
-
-        
-
-
-
-
-
 if __name__=="__main__":
     datadir='principles/project4/data/'
-    img='templeRing/'
+    img='fern/'
     path=datadir+img
     run_main_loop(path)
 
