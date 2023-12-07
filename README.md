@@ -9,6 +9,8 @@ print(len(matches))
 
 # 2. Esential and Fubndamental Matrix
 Below Code is found in main.py
+
+
 ```python
 [F,mask]=cv2.findFundamentalMat(kp1,kp2, method=3,ransacReprojThreshold=3.0,confidence=0.99)
 [E1,mask]=cv2.findEssentialMat(kp1,kp2,cameraMatrix=K, method=cv2.RANSAC, prob=0.999, threshold=3.0 )
@@ -39,7 +41,13 @@ changing to 3D according to since we require projection in 3D space.  they're ju
  https://stackoverflow.com/questions/69429075/what-could-be-the-reason-for-triangulation-3d-points-to-result-in-a-warped-para
 
 #  5. PnP 
-solvePnPRefineLM()
+used solvePnPRefineLM() for better control of outliers
+```python
+r, t=solvePnPRefineLM()(points_3D,points_2D,K,dist_coeffs,r1,t1,criteria=criteria)
+R,jacobian=cv2.Rodrigues(r)
+pnp_mat=np.hstack([R,t])
+CurrentPose=np.dot(K,pnp_mat)
+```
 
 # 6. Optimization
 Least squares with soft l1 loss: rho(z) = 2 * ((1 + z)**0.5 - 1)
@@ -47,6 +55,8 @@ Least squares with soft l1 loss: rho(z) = 2 * ((1 + z)**0.5 - 1)
 res1=least_squares(RMSE, r.flatten(),jac='2-point', method='dogbox',loss='soft_l1',max_nfev=2000) #implemented least square optimization
  
 ```
+# 6. Bundle Adjustment
+Breadth search based on the number of matched features. Sorted by the most number of features and expanded.
 
 ## 7. Visualization
 Open3d point cloud
@@ -77,13 +87,16 @@ Datasets processed in the file Dataload.py
 def RMSE(r):
 return np.power(r-r0.flatten(),2) ##error function for least squares
 ```
+RMSE for TRex rotation matrix
+RMSE for TRex translation vector
 ![TRex](results/trex/trex1.png)
 ![TRex](results/trex/trex2.png)
 ![TRex](results/trex/trex3.png)
 ![TRex](results/trex/trex4.png)
 ![TRex](results/trex/trex5.png)
 
-
+RMSE for Fern rotation matrix
+RMSE for Fern translation vector
 ![Fern](results/fern/fern1.png)
 ![Fern](results/fern/fern2.png)
 ![Fern](results/fern/fern3.png)
