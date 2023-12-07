@@ -127,9 +127,35 @@ APE w.r.t. translation part (m)
 ![TRex](results/trex/trex4.png)
 ![TRex](results/trex/trex5.png)
 
-RMSE for Fern rotation matrix:
-RMSE for Fern translation vector: 
+RMSE for Fern rotation matrix:14187.827955083636
+RMSE for Fern translation vector:  6697.837169699395
 ```python
+--------------------------------------------------------------------------------
+Loaded 19 poses from: kitti_trex_gt.txt
+Loaded 19 poses from: kitti_trex_00.txt
+--------------------------------------------------------------------------------
+Aligning using Umeyama's method...
+Rotation of alignment:
+[[-0.70920034 -0.70429341  0.03171228]
+ [-0.67597208  0.66652846 -0.31432716]
+ [ 0.20024141 -0.24435755 -0.94878489]]
+Translation of alignment:
+[17.08704688 24.74655038 -7.53542607]
+Scale correction: 1.0
+--------------------------------------------------------------------------------
+Compared 19 absolute pose pairs.
+Calculating APE for translation part pose relation...
+--------------------------------------------------------------------------------
+APE w.r.t. translation part (m)
+(with SE(3) Umeyama alignment)
+
+       max      472.822399
+      mean      177.974571
+    median      33.815540
+       min      20.278510
+      rmse      258.609392
+       sse      1270697.532936
+       std      187.626943
 
 ```
 ![Fern](results/fern/fern1.png)
