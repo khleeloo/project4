@@ -6,7 +6,6 @@ import cv2
 def load_image(path):
     images = []
     datadir=os.path.dirname(path + 'images_4/')
-    print(datadir)
     for filename in os.listdir(datadir):
         if filename.endswith('.png'):
             img = cv2.imread(datadir+'/'+filename)
@@ -31,13 +30,9 @@ def load_llff(path):
     cx=hwf[1]/2
     cy=hwf[0]/2
 
-    K=np.array([[fx,0,cx], [0 ,fy, cy],[0, 0, 1]]).astype(np.float64)
+    K=np.array([[fx,0,cx], [0 ,fy, cy],[0, 0, 1]]).astype(np.float64)  ##intrinsic matrix
     poses = poses[:,:3,:4]
-    # llff_list=[]
-    # for img in images:
-    #     img = np.asarray(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)).astype(np.float64)
-    #     if img is not None:
-    #         llff_list.append(img)
+
     llff_list=load_image(path)
 
 

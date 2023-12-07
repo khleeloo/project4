@@ -58,11 +58,15 @@ def run_main_loop(path):
     new_mat=[]
     projMatr1=None
 
-    
+    RMSE_r=0
+    RMSE_t=0
     i=1
+    loss=0
     while  i<len(images):
         if poses is not None:
             pose_gt=poses[i] 
+            r0,_=cv2.Rodrigues(pose_gt[:, :3]) # computing rotation vec  ground truth for llff
+            t0=pose_gt[:, 3] # computing translation vec ground truth for llff
             bds_gt=bds[i]
 
         for z in range(0,len(images)-1):    
@@ -84,22 +88,21 @@ def run_main_loop(path):
                 
                 
                 [E1,mask]=cv2.findEssentialMat(kp1,kp2,cameraMatrix=K, method=cv2.RANSAC, prob=0.999, threshold=3.0 )
-   
+
                 [E2,mask]=cv2.findEssentialMat(kp2,kp1,cameraMatrix=K, method=cv2.RANSAC, prob=0.999, threshold=3.0 )
         
             [_, R1, t1, mask] = cv2.recoverPose(E1, kp1,kp2, cameraMatrix=K,mask=mask)    
-            print("Creating projection matrix for image {}.{}".format(i,z))
+            print("Creating projection matrix for image {}.".format(i))
             # [_, R2, t2, mask] = cv2.recoverPose(E2, kp2,kp1, cameraMatrix=K,mask=mask)  
-            r1,jacobian=cv2.Rodrigues(R1)
-
+            r1,_=cv2.Rodrigues(R1)
 
             CurrentProjMatr=np.column_stack((R1,t1))
-            # projMatr2=np.column_stack((R2,t2))
-            # CurrentProjMatr=np.dot(K,CurrentProjMatr)
+
+            CurrentProjMatr=np.dot(K,CurrentProjMatr)
             b=i-1
             print("Using previous projection matrix for image {}".format(b))
             PreviousProjMatr=proj_matr_list[i-1]
-            # projMatr2=np.dot(K,projMatr2)
+
             mat_4D=triangulation(projMatr1=PreviousProjMatr,projMatr2=CurrentProjMatr,projPoints1=kp1,projPoints2=kp2).astype(np.float64)
             mat_3D = mat_4D[:3,:]
 
@@ -111,41 +114,62 @@ def run_main_loop(path):
 
             criteria = (cv2.TERM_CRITERIA_MAX_ITER+cv2.TERM_CRITERIA_EPS, 20, 1e-6)
             r, t=PnP(points_3D,points_2D,K,dist_coeffs,r1,t1,criteria=criteria)
+
+            RMSE_r+=np.power(sum(r.flatten())-sum(r0.flatten()),2) #calculate RMSE r and update
+            RMSE_t+=np.power(sum(t.flatten())-sum(t0.flatten()),2)  #calculate RMSE t and update
+
+            def RMSE(r):
+                return np.power(r-r0.flatten(),2) ##error function for least squares
+            
+            res1=least_squares(RMSE, r.flatten(),jac='2-point', method='dogbox',loss='soft_l1',max_nfev=2000) #implemented least square optimization
+            loss+=res1['cost']
+            r=res1['x']
+
             R,jacobian=cv2.Rodrigues(r)
             pnp_mat=np.hstack([R,t])
-            CurrentPose=pnp_mat
+            CurrentPose=np.dot(K,pnp_mat)
 
             mat_4D=triangulation(projMatr1=PreviousProjMatr,projMatr2=CurrentPose,projPoints1=kp1,projPoints2=kp2).astype(np.float64).T
             # #changing to 3D according to since we require projection in 3D space.  they're just 3D points in a 4D projective space, analogous to 2D points in a 3D projective space. all points (x,y,z,1) * w, for arbitrary nonzero w, 
             # # in the projective space represent the same 3D point (x,y,z), and (x,y,z,1) is the canonical representative.
             # # https://stackoverflow.com/questions/69429075/what-could-be-the-reason-for-triangulation-3d-points-to-result-in-a-warped-para
             mat_3D = mat_4D[:,:3]/mat_4D[:,3:4]
-            # res1=least_squares(triangulation, CurrentPose.flatten(),args=(pose_gt.flatten(),kp1,kp2),jac='2-point', method='lm',loss='linear',max_nfev=2000)
-            # print(res1)
-            #visualize
-            
-            pcd.points = o3d.utility.Vector3dVector(mat_3D)
-            mat_dict[n_inliners]=pcd
-            # new_mat.append(pcd)
+
+        #visualize
+        
+        pcd.points = o3d.utility.Vector3dVector(mat_3D)
+        mat_dict[n_inliners]=pcd
+        # new_mat.append(pcd)
 
         proj_matr_list.append(CurrentPose)
-        current_pose=CurrentPose.flatten()
-        print(poses[i])
+  
+        current_pose_str=CurrentPose.flatten()
         pose_gt_str=poses[i].flatten()
-        print(pose_gt_str)
-        with open('results/kitti_trex_00.txt', 'a') as f: 
-            for pose in current_pose:
-                print(pose)
-                f.write(str(pose)+' ')
+
+        with open('results/kitti_trex_00.txt', 'a') as f:   ###saving results for odometry evaluation
+            k=''
+            for p in current_pose_str:
+                print(p)
+               
+                k+=str(p)+' '
+            f.write(k.strip())
             f.write('\n')
             f.close()
-        with  open('results/kitty_trex_gt.txt', 'a') as w:
+        with  open('results/kitti_trex_gt.txt', 'a') as w:  ###saving results for odometry evaluation
+            z=''
             for pose in pose_gt_str:
-                w.write(str(pose)+' ')
+                z+=str(pose)+' '
+            w.write(z.strip())
             w.write('\n')
             w.close()
         i+=1
-
+        
+    TOTAL_RMSE_r =  np.sqrt( (1/len(images)**2)* RMSE_r)
+    TOTAL_RMSE_t =  np.sqrt( (1/len(images)**2)* RMSE_t)
+    mean_loss=loss/len(images)**2
+    print('TOTAL_RMSE_r',TOTAL_RMSE_r)    
+    print('TOTAL_RMSE_t',TOTAL_RMSE_t)   
+    print('Average loss',mean_loss)   
     # ##END LOOP  
 
 
@@ -157,36 +181,13 @@ def run_main_loop(path):
 
     return r,t, CurrentPose, pose_gt,  mat_dict
 
-def train(path):
-
-    new_mat=[]     
-    i=1
-    while i<100:
-        r,t, CurrentPose, pose_gt, mat_dict=run_main_loop(path)
-
-        def gt_r(pose_mat):
-                # r_gt,_=cv2.Rodrigues(pose_mat[:, :3])
-            return pose_mat.flatten()
-        #least squares optimalization
-        def fun(x):
-
-            return np.subtract(np.abs(x),np.abs(gt_r(pose_gt)))
-        print(CurrentPose.astype(np.int32), pose_gt.astype(np.int32))
-        res1=least_squares(fun, CurrentPose.flatten(),jac='2-point', method='lm',loss='linear',max_nfev=2000)
-        print(res1)
-        i+=1
-    mat_dict=dict(sorted(mat_dict.items(),reverse=True))
-    [new_mat.append(n) for _,n in mat_dict.items()]
-    # o3d.visualization.draw_geometries(new_mat)
-    o3d.visualization.draw_plotly(new_mat)
-    return res1['cost']
 
 if __name__=="__main__":
     datadir='data/'
-    img='trex/'
-    # img='fern/'
+    # img='trex/'
+    img='fern/fern/'
     path=datadir+img
-    # train(path)
+ 
     run_main_loop(path)
     
 
