@@ -31,9 +31,9 @@ t Recovered relative translation, 3x1 vector.
 mask Output mask for inliers in points1 and points2. In the output mask only inliers which pass the cheirality check. 
 	
 # 4. Triangulation
-
-mat_4D=cv2.triangulatePoints(projMatr1=projMatr1,projMatr2=projMatr2,projPoints1=kp1,projPoints2=kp2).astype(np.float64)
 ```python
+mat_4D=cv2.triangulatePoints(projMatr1=projMatr1,projMatr2=projMatr2,projPoints1=kp1,projPoints2=kp2).astype(np.float64)
+
 mat_3D = mat_4D[:,:3]/mat_4D[:,3:4]
 ```
 changing to 3D according to since we require projection in 3D space.  they're just 3D points in a 4D projective space, analogous to 2D points in a 3D projective space. all points (x,y,z,1) * w, for arbitrary nonzero w, 
