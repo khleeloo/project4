@@ -1,11 +1,10 @@
 # Structure from Motion
 
+Environment variables found in principles.yml (conda env)
 
 # 1. Using Superglue to support better feature matching
-FeatureMatching.py
- Match the features
-kp1,kp2,matches = ImageMatch(images[0], images[1])
-print(len(matches))
+FeatureMatching.py 
+
 
 # 2. Esential and Fubndamental Matrix
 Below Code is found in main.py
