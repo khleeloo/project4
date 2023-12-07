@@ -87,8 +87,11 @@ RMSE_r+=sum(np.power(r.flatten()-r0.flatten(),2)) #calculate RMSE r and update
 TOTAL_RMSE_r =  np.sqrt( (1/len(images)**2)* RMSE_r)
 ```
 
-RMSE for TRex rotation matrix:
-RMSE for TRex translation vector: 
+
+: 
+RMSE for TRex rotation matrix: 0.0015021174744879215
+RMSE for TRex translation vector 14627410.962035134
+Average loss 1.752949594479218e-12
 
 ```python
 --------------------------------------------------------------------------------
