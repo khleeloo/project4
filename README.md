@@ -57,34 +57,32 @@ example_point, jacobian = cv2.projectPoints(
 # print(example_point)
 
 
-7. Visualization
+## 7. Visualization
+Open3d point cloud
 print("Load a ply point cloud, print it, and render it")
 pcd = o3d.geometry.PointCloud()
-pcd.points = o3d.utility.Vector3dVector(mat_3D)
-print(pcd)
-# print(np.asarray(pcd.points))
-# o3d.visualization.draw_geometries([pcd],
-#                                   zoom=0.3412,
-#                                   front=[0.4257, -0.2125, -0.8795],
-#                                   lookat=[2.6172, 2.0475, 1.532],
-#                                   up=[-0.0694, -0.9768, 0.2024])
-
-o3d.visualization.draw_geometries([pcd])
-
-8. Datasets
- ## TempleRing
-
- ## LLFF
-# images, poses, bds, render_poses, i_test = load_llff_data(datadir + 'fern', factor=8, recenter=True, bd_factor=.75)
-# hwf = poses[0,:3,-1]
-
-# ##hwf is the parameter for "height width focal"
-
-# ## fx = fy = f in this case.
-# fx=hwf[2]
-# #  Cx = W/2 and Cy = H /2 
-# cx=hwf[1]/2
-# cy=hwf[0]/2
 
 
-# poses = poses[:,:3,:4]
+## 8. Datasets
+
+
+## Results
+Datasets processed in the file Dataload.py
+ ### TempleRing
+![Temple Ring](results/templeRing1.png)
+![Temple Ring](results/templeRing2.png)
+![Temple Ring](results/templeRing3.png)
+![Temple Ring](results/templeRing4.png)
+ 
+ ### LLFF
+ Intrinsic matrix constructed from pose information:
+
+ ```python
+  K=np.array([[fx,0,cx], [0 ,fy, cy],[0, 0, 1]]).astype(np.float64)  ##intrinsic matrix
+```
+
+![TRex](results/trex1.png)
+![TRex](results/trex1.png)
+![TRex](results/trex1.png)
+![Fern](results/fern1.png)
+![TRex](results/fen2.png)
