@@ -73,7 +73,7 @@ def run_main_loop(path):
     else:
         pass
     
-    while  i<len(images[:4]):
+    while  i<len(images[:2]):
 
         for z in range(0,len(images)-1):    
             k1,k2,matches,method, n_inliners= ImageMatch(images[i],images[z])
@@ -166,21 +166,22 @@ def run_main_loop(path):
     mat_dict=dict(sorted(mat_dict.items(),reverse=True))
     [new_mat.append(n) for m ,n in mat_dict.items()]
     o3d.visualization.draw_geometries(new_mat)
-    vis = o3d.visualization.Visualizer()
-    vis.create_window()
-    vis.add_geometry(new_mat)
-    vis.update_geometry()
-    vis.poll_events()
-    vis.update_renderer()
-    vis.capture_screen_image('principles/project4/results/')
-    vis.destroy_window()
+    # vis = o3d.visualization.Visualizer()
+    # vis.create_window()
+    # vis.add_geometry(new_mat)
+    # vis.update_geometry()
+    # vis.poll_events()
+    # vis.update_renderer()
+    # vis.capture_screen_image('results/img.png')
+    # vis.destroy_window()
 
         
 
 
 if __name__=="__main__":
-    datadir='principles/project4/data/'
-    img='fern/'
+    datadir='data/'
+    # img='fern/'
+    img='templeRing/'
     path=datadir+img
     run_main_loop(path)
 
