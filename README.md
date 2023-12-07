@@ -1,4 +1,4 @@
-
+# Structure from Motion
 
 
 1. Using Superglue to support better feature matching
@@ -80,9 +80,20 @@ Datasets processed in the file Dataload.py
  ```python
   K=np.array([[fx,0,cx], [0 ,fy, cy],[0, 0, 1]]).astype(np.float64)  ##intrinsic matrix
 ```
+# RMSE calculation
 
+```python
+def RMSE(r):
+return np.power(r-r0.flatten(),2) ##error function for least squares
+```
 ![TRex](results/trex1.png)
-![TRex](results/trex1.png)
-![TRex](results/trex1.png)
+![TRex](results/trex2.png)
+![TRex](results/trex3.png)
+![TRex](results/trex4.png)
+![TRex](results/trex5.png)
+
+
 ![Fern](results/fern1.png)
-![TRex](results/fen2.png)
+![Fern](results/fern2.png)
+![Fern](results/fern3.png)
+![Fern](results/fern4.png)
