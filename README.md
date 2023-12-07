@@ -43,7 +43,10 @@ solvePnPRefineLM()
 
 # 6. Optimization
 Least squares with soft l1 loss: rho(z) = 2 * ((1 + z)**0.5 - 1)
-
+```python
+res1=least_squares(RMSE, r.flatten(),jac='2-point', method='dogbox',loss='soft_l1',max_nfev=2000) #implemented least square optimization
+ 
+```
 
 ## 7. Visualization
 Open3d point cloud
@@ -51,11 +54,11 @@ print("Load a ply point cloud, print it, and render it")
 pcd = o3d.geometry.PointCloud()
 
 
-## 8. Datasets
+## 8. Results
 
 
-## Results
 Datasets processed in the file Dataload.py
+
  ### TempleRing
 ![Temple Ring](results/templeRing1.png)
 ![Temple Ring](results/templeRing2.png)
